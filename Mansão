@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Estrutura para representar uma sala da mansão (nó da árvore)
+typedef struct Sala {
+    char nome[50];
+    struct Sala *esquerda;
+    struct Sala *direita;
+} Sala;
+
+// Função para criar uma nova sala
+Sala* criarSala(const char *nome) {
+    Sala *nova = (Sala*)malloc(sizeof(Sala));
+    if (nova == NULL) {
+        fprintf(stderr, "Erro de alocação de memória!\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(nova->nome, nome);
+    nova->esquerda = NULL;
+    nova->direita = NULL;
+    return nova;
+}
+
+// Função que cria a estrutura da mansão (árvore binária)
+Sala* criarMansao() {
+    // Cria as salas
+    Sala *hall        = criarSala("Hall de Entrada");
+    Sala *biblioteca  = criarSala("Biblioteca");
+    Sala *salaJantar  = criarSala("Sala de Jantar");
+    Sala *cozinha     = criarSala("Cozinha");
+    Sala *jardim      = criarSala("Jardim");
+    Sala *escritorio  = criarSala("Escritório");
+    Sala *quarto      = criarSala("Quarto Principal");
+
+    // Define as conexões (estrutura da árvore)
+    hall->esquerda = biblioteca;
+    hall->direita = salaJantar;
+
+    biblioteca->esquerda = cozinha;
+    biblioteca->direita = jardim;
+
+    salaJantar->esquerda = escritorio;
+    salaJantar->direita = quarto;
+
+    // Retorna a raiz (Hall de entrada)
+    return hall;
+}
+
+// Função para explorar a mansão interativamente
+void explorar(Sala *atual) {
+    char escolha;
+
+    while (1) {
+        printf("\nVocê está na %s.\n", atual->nome);
+
+        // Verifica se é uma sala sem saídas
+        if (atual->esquerda == NULL && atual->direita == NULL) {
+            printf("Você chegou ao fim da exploração. Fim do caminho!\n");
+            break;
+        }
+
+        // Mostra opções de direção
+        printf("Deseja ir para a esquerda (e) ou para a direita (d)? ");
+        scanf(" %c", &escolha);
+
+        if (escolha == 'e' || escolha == 'E') {
+            if (atual->esquerda != NULL) {
+                atual = atual->esquerda;
+            } else {
+                printf("Não há caminho à esquerda!\n");
+            }
+        } else if (escolha == 'd' || escolha == 'D') {
+            if (atual->direita != NULL) {
+                atual = atual->direita;
+            } else {
+                printf("Não há caminho à direita!\n");
+            }
+        } else {
+            printf("Opção inválida! Use 'e' ou 'd'.\n");
+        }
+    }
+}
+
+// Libera a memória da árvore
+void liberarMansao(Sala *raiz) {
+    if (raiz == NULL) return;
+    liberarMansao(raiz->esquerda);
+    liberarMansao(raiz->direita);
+    free(raiz);
+}
+
+// Função principal
+int main() {
+    Sala *mansao = criarMansao();
+
+    printf("=== EXPLORAÇÃO DA MANSÃO ===\n");
+    explorar(mansao);
+
+    liberarMansao(mansao);
+    printf("\nObrigado por jogar!\n");
+
+    return 0;
+}
